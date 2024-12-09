@@ -1,9 +1,10 @@
-## Few-Shot Prompt Documentation
+## Single Prompt Documentation
 
 Model Metadata
 
 - **Model Version**: `gpt-4o-2024-08-06`
 - **Temperature**: `0`
+- `response_format={"type": "json_object"}`
 - **Other Parameters**: Defaults retained
 
 
@@ -84,67 +85,25 @@ Return a JSON object with the following structure:
 
 ```
 
-
-
-### Few-Shot Examples
-
-The image below shows the pictures we used in our few-shot prompt. Examples were selected once using pandas' `sample()` function. Then, the same examples were used for every request. Each line represents a separate user message. The text to the left is the textual message part. Few-Shot images were sent using `detail=low` setting.
-
-![Few-Shot Examples Plot](Image-Types-Few-Shot-Examples-ALL_2024-11-07-14-47_Prompt_V2.png)
-
-
-
-### Code for Few-Shot Examples
-
-```python
-few_shot_prompt = []
-few_shot_image_paths = {}
-labels = eval_df['decision'].unique()
-for label in labels:
-  if label == "Review":
-    continue
-
-  few_shot_image_paths[label] = []
-
-  few_shot_samples = eval_df[eval_df['decision'] == label].sample(n=3, random_state=4466) 
-
-  few_shot_images = [{
-      "type": "text",
-      "text": f"{{ 'decision': '{label}' }}"
-    }]
-  for index, row in few_shot_samples.iterrows():
-    image_base_64 = encode_image(row['image'])
-    few_shot_image_paths[label].append(row['image'])
-
-    few_shot_images.append({
-        "type": "image_url",
-        "image_url": {
-            "url": f"data:image/jpeg;base64,{image_base_64}",
-            "detail": "low"
-        }
-    })
-
-  few_shot_prompt.append({
-      "role": "user",
-      "content": few_shot_images
-  })
-```
-
-
+* For each Image Type, three few-shot images were provided. For each type, we sent a user message including the images and the message `{'decision': IMAGE_TYPE}`.
 
 ## Classification Results
 
-| Category                 | Precision | Recall | F1-Score | Support |
-| ------------------------ | --------- | ------ | -------- | ------- |
-| Behind The Scenes        | 0.41      | 0.74   | 0.53     | 31      |
-| Campaign Event           | 0.90      | 0.91   | 0.91     | 347     |
-| Campaign Material        | 0.53      | 0.75   | 0.62     | 40      |
-| Collage                  | 0.93      | 0.86   | 0.90     | 312     |
-| Individual Voter Contact | 0.86      | 0.58   | 0.69     | 107     |
-| Media Work               | 0.73      | 0.74   | 0.74     | 78      |
-| Social Media Moderation  | 0.69      | 0.85   | 0.76     | 55      |
-| **Accuracy**             |           |        | 0.83     | 970     |
-| **Macro Avg**            | 0.72      | 0.78   | 0.74     | 970     |
-| **Weighted Avg**         | 0.85      | 0.83   | 0.83     | 970     |
 
-![Classification Matrix](matrix.png)
+
+| Image Type               | Precision | Recall | F1-Score | Support |
+| ------------------------ | --------- | ------ | -------- | ------- |
+| Behind The Scenes        | 0.38      | 0.65   | 0.48     | 31      |
+| Campaign Event           | 0.90      | 0.90   | 0.90     | 346     |
+| Campaign Material        | 0.50      | 0.73   | 0.59     | 37      |
+| Collage                  | 0.94      | 0.85   | 0.89     | 313     |
+| Individual Voter Contact | 0.86      | 0.57   | 0.68     | 104     |
+| Media Work               | 0.73      | 0.76   | 0.75     | 75      |
+| Social Media Moderation  | 0.69      | 0.85   | 0.76     | 52      |
+| Accuracy                 |           |        | 0.82*    | 958     |
+| Macro Avg                | 0.71*     | 0.76*  | 0.72*    | 958     |
+| Weighted Avg             | 0.85*     | 0.82*  | 0.83*    | 958     |
+
+*: Excluding *Review*
+
+![Confusion Matrix for Single Prompt.](matrix.png)
